@@ -8,4 +8,5 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface AuthService {
     UserResponseDTO createUser(UserCreateDTO userCreateDTO);
     UserResponseDTO login(LoginDTO loginDTO, HttpServletRequest request);
+    void logout(HttpServletRequest request);
 }

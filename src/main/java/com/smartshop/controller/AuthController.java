@@ -28,4 +28,10 @@ public class AuthController {
                                  HttpServletRequest request) {
         return authService.login(loginDTO, request);
     }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(HttpServletRequest request) {
+        authService.logout(request);
+    }
 }
