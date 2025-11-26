@@ -19,6 +19,7 @@ public class Product {
     private String name;
     private Double unitPrice;
     private Double availableStock;
+    private Boolean deleted = false;
 
     @OneToMany(mappedBy = "product")
     private List<OrderItem> orderItems;
