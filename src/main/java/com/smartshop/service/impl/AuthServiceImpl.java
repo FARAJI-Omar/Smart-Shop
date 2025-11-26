@@ -22,10 +22,9 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     
     @Override
-    public UserResponseDTO createAdmin(UserCreateDTO userCreateDTO) {
+    public UserResponseDTO createUser(UserCreateDTO userCreateDTO) {
         User user = userMapper.toEntity(userCreateDTO);
         user.setPassword(PasswordUtil.hashPassword(user.getPassword()));
-        user.setRole(UserRole.ADMIN);
         User savedUser = userRepository.save(user);
         return userMapper.toDTO(savedUser);
     }
