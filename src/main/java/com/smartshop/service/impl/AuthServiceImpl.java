@@ -35,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(loginDTO.getUsername())
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
-        if (!PasswordUtil.verifyPassword(PasswordUtil.hashPassword(loginDTO.getPassword()), user.getPassword())) {
+        if (!PasswordUtil.verifyPassword(loginDTO.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
 
