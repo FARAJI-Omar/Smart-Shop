@@ -29,4 +29,21 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.save(user);
         return userMapper.toDTO(savedUser);
     }
+
+    @Override
+    public UserResponseDTO login(LoginDTO loginDTO, HttpServletRequest request) {
+        User user = userRepository.findByUsername(loginDTO.getUsername())
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+
+        if (!PasswordUtil.verifyPassword(loginDTO.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        HttpSession session = request.getSession();
+        session.setAttribute("userId", user.getId());
+        session.setAttribute("userName", user.getUsername());
+        session.setAttribute("userRole", user.getRole());
+
+        return userMapper.toDTO(user);
+    }
 }

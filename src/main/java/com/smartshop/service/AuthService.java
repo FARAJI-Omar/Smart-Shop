@@ -7,4 +7,5 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public interface AuthService {
     UserResponseDTO createAdmin(UserCreateDTO userCreateDTO);
+    UserResponseDTO login(LoginDTO loginDTO, HttpServletRequest request);
 }
