@@ -12,12 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductUpdateDTO {
-    @NotNull(message = "Product name is required")
     private String name;
     
     @DecimalMin(value = "0.0", inclusive = false, message = "Unit price must be greater than 0")
     private Double unitPrice;
     
     @DecimalMin(value = "0.0", message = "Available stock must be greater than or equal to 0")
-    private Double availableStock   ;
+    private Double availableStock;
 }
