@@ -1,5 +1,6 @@
 package com.smartshop.controller;
 
+import com.smartshop.dto.request.ClientUpdateDTO;
 import com.smartshop.dto.response.ClientResponseDTO;
 import com.smartshop.service.ClientService;
 import com.smartshop.util.SessionUtil;
@@ -20,6 +21,14 @@ public class ClientController {
             throw new SecurityException("Access restricted only to admin.");
         }
         return clientService.getClientById(id);
+    }
+
+    @PutMapping("/{id}")
+    public ClientResponseDTO updateClient(@PathVariable Long id, @RequestBody ClientUpdateDTO dto, HttpServletRequest request) {
+        if (!SessionUtil.isAdmin(request)) {
+            throw new SecurityException("Access restricted only to admin.");
+        }
+        return clientService.updateClient(id, dto);
     }
 
     @DeleteMapping("/{id}")

@@ -1,5 +1,6 @@
 package com.smartshop.service.impl;
 
+import com.smartshop.dto.request.ClientUpdateDTO;
 import com.smartshop.dto.response.ClientResponseDTO;
 import com.smartshop.entity.Client;
 import com.smartshop.mapper.ClientMapper;
@@ -34,5 +35,22 @@ public class ClientServiceImpl implements ClientService {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Client not found"));
         return clientMapper.toDTO(client);
+    }
+
+    @Override
+    @Transactional
+    public ClientResponseDTO updateClient(Long id, ClientUpdateDTO dto) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+        
+        if (dto.getName() != null) {
+            client.setName(dto.getName());
+        }
+        if (dto.getEmail() != null) {
+            client.setEmail(dto.getEmail());
+        }
+        
+        Client updated = clientRepository.save(client);
+        return clientMapper.toDTO(updated);
     }
 }
