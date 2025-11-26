@@ -1,6 +1,7 @@
 package com.smartshop.service.impl;
 
 import com.smartshop.entity.User;
+import com.smartshop.entity.enums.UserRole;
 import com.smartshop.repository.UserRepository;
 import com.smartshop.service.AdminService;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,6 +20,10 @@ public class AdminServiceImpl implements AdminService {
     public void deleteAdmin(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Admin not found with id: " + id));
+        
+        if (user.getRole() != UserRole.ADMIN) {
+            throw new IllegalArgumentException("Could not delete");
+        }
         
         if ("admin0".equals(user.getUsername())) {
             throw new IllegalStateException("Cannot delete the primary admin");
