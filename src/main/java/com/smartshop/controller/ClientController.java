@@ -17,7 +17,7 @@ public class ClientController {
     @GetMapping("/{id}")
     public ClientResponseDTO getClientById(@PathVariable Long id, HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new SecurityException("Access restricted only to admin.");
         }
         return clientService.getClientById(id);
     }
@@ -26,7 +26,7 @@ public class ClientController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteClient(@PathVariable Long id, HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new SecurityException("Access restricted only to admin.");
         }
         clientService.deleteClient(id);
     }

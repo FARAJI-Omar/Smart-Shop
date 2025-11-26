@@ -60,4 +60,12 @@ public class AuthServiceImpl implements AuthService {
 
         return userMapper.toDTO(user);
     }
+
+    @Override
+    public void logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+    }
 }
