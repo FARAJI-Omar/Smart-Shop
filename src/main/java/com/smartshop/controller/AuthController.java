@@ -4,6 +4,7 @@ import com.smartshop.dto.request.LoginDTO;
 import com.smartshop.dto.request.UserCreateDTO;
 import com.smartshop.dto.response.UserResponseDTO;
 import com.smartshop.service.AuthService;
+import com.smartshop.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,10 @@ public class AuthController {
     
     @PostMapping("/createuser")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO createUser(@Valid @RequestBody UserCreateDTO userCreateDTO) {
+    public UserResponseDTO createUser(@Valid @RequestBody UserCreateDTO userCreateDTO, HttpServletRequest request) {
+        if (!SessionUtil.isAdmin(request)) {
+            throw new SecurityException("Access restricted only to admin.");
+        }
         return authService.createUser(userCreateDTO);
     }
     
