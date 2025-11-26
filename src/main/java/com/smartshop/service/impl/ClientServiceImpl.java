@@ -1,9 +1,12 @@
 package com.smartshop.service.impl;
 
+import com.smartshop.dto.response.ClientResponseDTO;
 import com.smartshop.entity.Client;
+import com.smartshop.mapper.ClientMapper;
 import com.smartshop.repository.ClientRepository;
 import com.smartshop.repository.UserRepository;
 import com.smartshop.service.ClientService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
+    private final ClientMapper clientMapper;
 
     @Override
     @Transactional
@@ -23,5 +27,12 @@ public class ClientServiceImpl implements ClientService {
         Long userId = client.getUser().getId();
         clientRepository.deleteById(id);
         userRepository.deleteById(userId);
+    }
+
+    @Override
+    public ClientResponseDTO getClientById(Long id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+        return clientMapper.toDTO(client);
     }
 }
