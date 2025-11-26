@@ -24,10 +24,9 @@ public class Client {
     @Enumerated(EnumType.STRING)
     private CustomerTier loyaltyLevel;
 
-    // unidirectional one to one relationship with User
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    private User userDetails;
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<Order> orders;

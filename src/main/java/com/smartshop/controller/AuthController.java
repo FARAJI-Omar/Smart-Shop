@@ -17,10 +17,10 @@ public class AuthController {
     
     private final AuthService authService;
     
-    @PostMapping("/createadmin")
+    @PostMapping("/createuser")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO createAdmin(@Valid @RequestBody UserCreateDTO userCreateDTO) {
-        return authService.createAdmin(userCreateDTO);
+    public UserResponseDTO createUser(@Valid @RequestBody UserCreateDTO userCreateDTO) {
+        return authService.createUser(userCreateDTO);
     }
     
     @PostMapping("/login")

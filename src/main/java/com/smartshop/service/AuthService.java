@@ -6,6 +6,6 @@ import com.smartshop.dto.response.UserResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 
 public interface AuthService {
-    UserResponseDTO createAdmin(UserCreateDTO userCreateDTO);
+    UserResponseDTO createUser(UserCreateDTO userCreateDTO);
     UserResponseDTO login(LoginDTO loginDTO, HttpServletRequest request);
 }
