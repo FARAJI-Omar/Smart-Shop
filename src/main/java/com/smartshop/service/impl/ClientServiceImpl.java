@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
@@ -52,5 +54,10 @@ public class ClientServiceImpl implements ClientService {
         
         Client updated = clientRepository.save(client);
         return clientMapper.toDTO(updated);
+    }
+
+    @Override
+    public List<ClientResponseDTO> getAllClients() {
+        return clientMapper.toListDTO(clientRepository.findAll());
     }
 }

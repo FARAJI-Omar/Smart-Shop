@@ -9,11 +9,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/clients")
 @RequiredArgsConstructor
 public class ClientController {
     private final ClientService clientService;
+
+    @GetMapping
+    public List<ClientResponseDTO> getAllClients(HttpServletRequest request) {
+        if (!SessionUtil.isAdmin(request)) {
+            throw new SecurityException("Access restricted only to admin.");
+        }
+        return clientService.getAllClients();
+    }
 
     @GetMapping("/{id}")
     public ClientResponseDTO getClientById(@PathVariable Long id, HttpServletRequest request) {

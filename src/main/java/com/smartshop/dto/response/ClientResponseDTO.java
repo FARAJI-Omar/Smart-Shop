@@ -15,5 +15,4 @@ public class ClientResponseDTO {
     private String name;
     private String email;
     private CustomerTier loyaltyLevel;
-    private UserResponseDTO user;
 }
