@@ -29,4 +29,5 @@ public class OrderResponseDTO {
     private Double total;
     private OrderStatus status;
     private Double remainingAmount;
+    private String message;
 }

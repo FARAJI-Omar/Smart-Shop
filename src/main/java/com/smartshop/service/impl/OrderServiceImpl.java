@@ -48,6 +48,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
         double subtotal = 0.0;
         boolean stockSufficient = true;
+        String rejectionMessage = null;
 
         for (OrderItemCreateDTO itemDto : dto.getItems()) {
             Product product = productRepository.findById(itemDto.getProductId())
@@ -55,6 +56,7 @@ public class OrderServiceImpl implements OrderService {
 
             if (itemDto.getQuantity() > product.getAvailableStock()) {
                 stockSufficient = false;
+                rejectionMessage = "Insufficient stock for product " + product.getName();
             }
 
             OrderItem orderItem = new OrderItem();
@@ -76,6 +78,12 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(stockSufficient ? OrderStatus.PENDING : OrderStatus.REJECTED);
 
         Order saved = orderRepository.save(order);
-        return orderMapper.toDTO(saved);
+        OrderResponseDTO response = orderMapper.toDTO(saved);
+        
+        if (!stockSufficient) {
+            response.setMessage(rejectionMessage);
+        }
+        
+        return response;
     }
 }
