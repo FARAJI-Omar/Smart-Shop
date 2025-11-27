@@ -56,4 +56,12 @@ public class OrderController {
         }
         return orderService.getAllOrders();
     }
+
+    @GetMapping("/client/{clientId}")
+    public java.util.List<OrderResponseDTO> getOrdersByClientId(@PathVariable Long clientId, HttpServletRequest request) {
+        if (!SessionUtil.isAdmin(request)) {
+            throw new SecurityException("Admin access required");
+        }
+        return orderService.getOrdersByClientId(clientId);
+    }
 }

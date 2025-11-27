@@ -149,4 +149,12 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderResponseDTO> getAllOrders() {
         return orderMapper.toListDTO(orderRepository.findAll());
     }
+
+    @Override
+    public List<OrderResponseDTO> getOrdersByClientId(Long clientId) {
+        if (!clientRepository.existsById(clientId)) {
+            throw new EntityNotFoundException("Client not found");
+        }
+        return orderMapper.toListDTO(orderRepository.findClientsOrders(clientId));
+    }
 }

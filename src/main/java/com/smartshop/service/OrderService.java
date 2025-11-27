@@ -11,4 +11,5 @@ public interface OrderService {
     OrderResponseDTO cancelOrder(Long id);
     OrderResponseDTO getOrderById(Long id);
     List<OrderResponseDTO> getAllOrders();
+    List<OrderResponseDTO> getOrdersByClientId(Long clientId);
 }
