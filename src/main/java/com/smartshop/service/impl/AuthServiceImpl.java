@@ -37,6 +37,7 @@ public class AuthServiceImpl implements AuthService {
             Client client = new Client();
             client.setUser(savedUser);
             client.setName(savedUser.getUsername());
+            client.setEmail(dto.getEmail());
             client.setLoyaltyLevel(CustomerTier.BASIC);
             clientRepository.save(client);
         }
