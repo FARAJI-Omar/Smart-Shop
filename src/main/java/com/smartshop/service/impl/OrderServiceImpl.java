@@ -47,10 +47,15 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderItem> orderItems = new ArrayList<>();
         double subtotal = 0.0;
+        boolean stockSufficient = true;
 
         for (OrderItemCreateDTO itemDto : dto.getItems()) {
             Product product = productRepository.findById(itemDto.getProductId())
                     .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+            if (itemDto.getQuantity() > product.getAvailableStock()) {
+                stockSufficient = false;
+            }
 
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(product);
@@ -68,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
         order.setTva(subtotal * tvaRate);
         order.setTotal(subtotal + order.getTva());
         order.setRemainingAmount(order.getTotal());
-        order.setStatus(OrderStatus.PENDING);
+        order.setStatus(stockSufficient ? OrderStatus.PENDING : OrderStatus.REJECTED);
 
         Order saved = orderRepository.save(order);
         return orderMapper.toDTO(saved);
