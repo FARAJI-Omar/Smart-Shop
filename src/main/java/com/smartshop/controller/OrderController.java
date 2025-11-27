@@ -24,4 +24,20 @@ public class OrderController {
         }
         return orderService.createOrder(dto);
     }
+
+    @PutMapping("/{id}/confirm")
+    public OrderResponseDTO confirmOrder(@PathVariable Long id, HttpServletRequest request) {
+        if (!SessionUtil.isAdmin(request)) {
+            throw new SecurityException("Admin access required");
+        }
+        return orderService.confirmOrder(id);
+    }
+
+    @PutMapping("/{id}/cancel")
+    public OrderResponseDTO cancelOrder(@PathVariable Long id, HttpServletRequest request) {
+        if (!SessionUtil.isAdmin(request)) {
+            throw new SecurityException("Admin access required");
+        }
+        return orderService.cancelOrder(id);
+    }
 }

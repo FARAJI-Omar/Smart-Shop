@@ -56,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
 
             if (itemDto.getQuantity() > product.getAvailableStock()) {
                 stockSufficient = false;
-                rejectionMessage = "Insufficient stock for product " + product.getName();
+                rejectionMessage = "Order is REJECTED, Insufficient stock for product " + product.getName();
             }
 
             OrderItem orderItem = new OrderItem();
@@ -85,5 +85,56 @@ public class OrderServiceImpl implements OrderService {
         }
         
         return response;
+    }
+
+    @Override
+    @Transactional
+    public OrderResponseDTO confirmOrder(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found!"));
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalStateException("Only PENDING orders can be confirmed!");
+        }
+
+        if (order.getRemainingAmount() > 0) {
+            throw new IllegalStateException("Order is not fully paid yet!");
+        }
+
+        for (OrderItem item : order.getItems()) {
+            Product product = item.getProduct();
+            if (item.getQuantity() > product.getAvailableStock()) {
+                order.setStatus(OrderStatus.REJECTED);
+                Order saved = orderRepository.save(order);
+                OrderResponseDTO response = orderMapper.toDTO(saved);
+                response.setMessage("Order is REJECTED, Insufficient stock for product " + product.getName());
+                return response;
+            }
+        }
+
+        for (OrderItem item : order.getItems()) {
+            Product product = item.getProduct();
+            product.setAvailableStock(product.getAvailableStock() - item.getQuantity());
+            productRepository.save(product);
+        }
+
+        order.setStatus(OrderStatus.CONFIRMED);
+        Order saved = orderRepository.save(order);
+        return orderMapper.toDTO(saved);
+    }
+
+    @Override
+    @Transactional
+    public OrderResponseDTO cancelOrder(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalStateException("Only PENDING orders can be canceled");
+        }
+
+        order.setStatus(OrderStatus.CANCELED);
+        Order saved = orderRepository.save(order);
+        return orderMapper.toDTO(saved);
     }
 }
