@@ -1,5 +1,6 @@
 package com.smartshop.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.smartshop.entity.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +20,8 @@ public class OrderResponseDTO {
     private List<OrderItemResponseDTO> items;
     private PromoCodeResponseDTO promoCode;
     private List<PaymentResponseDTO> payments;
+
+    @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm")
     private LocalDateTime date;
     private Double subTotal;
     private Double discount;
