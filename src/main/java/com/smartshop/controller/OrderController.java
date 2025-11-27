@@ -40,4 +40,20 @@ public class OrderController {
         }
         return orderService.cancelOrder(id);
     }
+
+    @GetMapping("/{id}")
+    public OrderResponseDTO getOrderById(@PathVariable Long id, HttpServletRequest request) {
+        if (!SessionUtil.isAdmin(request)) {
+            throw new SecurityException("Admin access required");
+        }
+        return orderService.getOrderById(id);
+    }
+
+    @GetMapping
+    public java.util.List<OrderResponseDTO> getAllOrders(HttpServletRequest request) {
+        if (!SessionUtil.isAdmin(request)) {
+            throw new SecurityException("Admin access required");
+        }
+        return orderService.getAllOrders();
+    }
 }

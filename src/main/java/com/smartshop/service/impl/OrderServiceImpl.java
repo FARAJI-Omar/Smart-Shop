@@ -137,4 +137,16 @@ public class OrderServiceImpl implements OrderService {
         Order saved = orderRepository.save(order);
         return orderMapper.toDTO(saved);
     }
+
+    @Override
+    public OrderResponseDTO getOrderById(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+        return orderMapper.toDTO(order);
+    }
+
+    @Override
+    public List<OrderResponseDTO> getAllOrders() {
+        return orderMapper.toListDTO(orderRepository.findAll());
+    }
 }
