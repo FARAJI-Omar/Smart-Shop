@@ -72,8 +72,15 @@ public class OrderServiceImpl implements OrderService {
 
         order.setItems(orderItems);
         order.setSubTotal(subtotal);
-        order.setTva(subtotal * tvaRate);
-        order.setTotal(subtotal + order.getTva());
+
+        // Apply loyalty discount
+        double loyaltyDiscount = calculateLoyaltyDiscount(client, subtotal);
+        order.setDiscount(loyaltyDiscount);
+
+        // Calculate TVA on amount after discount
+        double amountAfterDiscount = subtotal - loyaltyDiscount;
+        order.setTva(amountAfterDiscount * tvaRate);
+        order.setTotal(amountAfterDiscount + order.getTva());
         order.setRemainingAmount(order.getTotal());
         order.setStatus(stockSufficient ? OrderStatus.PENDING : OrderStatus.REJECTED);
 
@@ -156,5 +163,27 @@ public class OrderServiceImpl implements OrderService {
             throw new EntityNotFoundException("Client not found");
         }
         return orderMapper.toListDTO(orderRepository.findClientsOrders(clientId));
+    }
+
+    /**
+     * loyalty discount based on client's tier and subtotal
+     * basic: 0% (no discount)
+     * silver: 5% if subtotal ≥ 500
+     * gold: 10% if subtotal ≥ 800
+     * platinum: 15% if subtotal ≥ 1200
+     */
+    private double calculateLoyaltyDiscount(Client client, double subtotal) {
+        if (client.getLoyaltyLevel() == null) {
+            return 0.0;
+        }
+
+        double discountRate = switch (client.getLoyaltyLevel()) {
+            case SILVER -> subtotal >= 500 ? 0.05 : 0.0;
+            case GOLD -> subtotal >= 800 ? 0.10 : 0.0;
+            case PLATINUM -> subtotal >= 1200 ? 0.15 : 0.0;
+            case BASIC -> 0.0;
+        };
+
+        return Math.round(subtotal * discountRate * 100.0) / 100.0; // Round to 2 decimals
     }
 }
