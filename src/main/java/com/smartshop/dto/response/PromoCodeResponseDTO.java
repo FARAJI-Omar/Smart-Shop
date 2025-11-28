@@ -13,5 +13,5 @@ public class PromoCodeResponseDTO {
     private Long id;
     private String code;
     private Double percentage;
-    private Boolean used;
+    private Boolean isUsed;
 }
