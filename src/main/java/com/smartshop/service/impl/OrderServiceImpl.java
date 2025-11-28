@@ -7,11 +7,13 @@ import com.smartshop.entity.Client;
 import com.smartshop.entity.Order;
 import com.smartshop.entity.OrderItem;
 import com.smartshop.entity.Product;
+import com.smartshop.entity.PromoCode;
 import com.smartshop.entity.enums.OrderStatus;
 import com.smartshop.mapper.OrderMapper;
 import com.smartshop.repository.ClientRepository;
 import com.smartshop.repository.OrderRepository;
 import com.smartshop.repository.ProductRepository;
+import com.smartshop.repository.PromoCodeRepository;
 import com.smartshop.service.OrderService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ClientRepository clientRepository;
     private final ProductRepository productRepository;
+    private final PromoCodeRepository promoCodeRepository;
     private final OrderMapper orderMapper;
 
     @Value("${app.config.tva-rate}")
@@ -75,16 +78,38 @@ public class OrderServiceImpl implements OrderService {
 
         // Apply loyalty discount
         double loyaltyDiscount = calculateLoyaltyDiscount(client, subtotal);
-        order.setDiscount(loyaltyDiscount);
 
-        // Calculate TVA on amount after discount
-        double amountAfterDiscount = subtotal - loyaltyDiscount;
+        // Apply promo code discount if provided
+        double promoDiscount = 0.0;
+        PromoCode promoCode = null;
+        if (dto.getPromoCode() != null && !dto.getPromoCode().trim().isEmpty()) {
+            promoCode = validateAndApplyPromoCode(dto.getPromoCode(), subtotal);
+            if (promoCode != null) {
+                promoDiscount = Math.round(subtotal * 0.05 * 100.0) / 100.0;
+            }
+        }
+
+        // Total discount (loyalty + promo)
+        double totalDiscount = loyaltyDiscount + promoDiscount;
+        order.setDiscount(totalDiscount);
+        order.setPromoCode(promoCode);
+
+        // Calculate TVA on amount after discounts
+        double amountAfterDiscount = subtotal - totalDiscount;
         order.setTva(amountAfterDiscount * tvaRate);
         order.setTotal(amountAfterDiscount + order.getTva());
         order.setRemainingAmount(order.getTotal());
         order.setStatus(stockSufficient ? OrderStatus.PENDING : OrderStatus.REJECTED);
 
         Order saved = orderRepository.save(order);
+
+        // Mark promo code as used after successful order creation
+        if (promoCode != null && stockSufficient) {
+            promoCode.setIsUsed(true);
+            promoCode.setOrder(saved);
+            promoCodeRepository.save(promoCode);
+        }
+
         OrderResponseDTO response = orderMapper.toDTO(saved);
         
         if (!stockSufficient) {
@@ -185,5 +210,16 @@ public class OrderServiceImpl implements OrderService {
         };
 
         return Math.round(subtotal * discountRate * 100.0) / 100.0; // Round to 2 decimals
+    }
+
+    private PromoCode validateAndApplyPromoCode(String code, double subtotal) {
+        PromoCode promoCode = promoCodeRepository.findByCode(code)
+                .orElseThrow(() -> new EntityNotFoundException("Promo code not found: " + code));
+
+        if (promoCode.getIsUsed()) {
+            throw new IllegalStateException("Promo code already used: " + code);
+        }
+
+        return promoCode;
     }
 }
