@@ -1,9 +1,9 @@
 package com.smartshop.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +23,6 @@ public class OrderCreateDTO {
     @Valid
     private List<OrderItemCreateDTO> items;
     
-    @Pattern(regexp = "^PROMO-[A-Z0-9]{4}$", message = "Promo code must follow format PROMO-XXXX")
+    @JsonAlias({"promocode", "promo_code"})
     private String promoCode;
 }
