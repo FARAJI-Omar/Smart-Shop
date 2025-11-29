@@ -18,7 +18,7 @@ public class OrderResponseDTO {
     private Long id;
     private ClientResponseDTO client;
     private List<OrderItemResponseDTO> items;
-    private PromoCodeResponseDTO promoCode;
+    private String promoCode;
     private List<PaymentResponseDTO> payments;
 
     @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm")

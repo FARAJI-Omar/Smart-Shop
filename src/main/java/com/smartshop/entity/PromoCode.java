@@ -20,7 +20,6 @@ public class PromoCode {
     private Double percentage;
     private Boolean isUsed;
 
-    @OneToOne
-    @JoinColumn(name = "order_id")
+    @OneToOne(mappedBy = "promoCode")
     private Order order;
 }
