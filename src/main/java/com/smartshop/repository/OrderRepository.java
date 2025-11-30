@@ -1,6 +1,8 @@
 package com.smartshop.repository;
 
 import com.smartshop.entity.Order;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,9 +13,9 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    // all orders by client id
+    // all orders by client id with pagination
     @Query("SELECT o FROM Order o WHERE o.client.id = :clientId")
-    List<Order> findClientsOrders(@Param("clientId") Long clientId);
+    Page<Order> findClientsOrders(@Param("clientId") Long clientId, Pageable pageable);
 
     // count all orders by client id
     @Query("SELECT COUNT(o) FROM Order o WHERE o.client.id = :clientId")

@@ -7,8 +7,12 @@ import com.smartshop.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/order")
@@ -18,7 +22,9 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderResponseDTO createOrder(@Valid @RequestBody OrderCreateDTO dto, HttpServletRequest request) {
+    public OrderResponseDTO createOrder(
+            @Valid @RequestBody OrderCreateDTO dto,
+            HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
             throw new SecurityException("Admin access required");
         }
@@ -26,7 +32,9 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/confirm")
-    public OrderResponseDTO confirmOrder(@PathVariable Long id, HttpServletRequest request) {
+    public OrderResponseDTO confirmOrder(
+            @PathVariable Long id,
+            HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
             throw new SecurityException("Admin access required");
         }
@@ -34,7 +42,9 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/cancel")
-    public OrderResponseDTO cancelOrder(@PathVariable Long id, HttpServletRequest request) {
+    public OrderResponseDTO cancelOrder(
+            @PathVariable Long id,
+            HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
             throw new SecurityException("Admin access required");
         }
@@ -42,7 +52,9 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public OrderResponseDTO getOrderById(@PathVariable Long id, HttpServletRequest request) {
+    public OrderResponseDTO getOrderById(
+            @PathVariable Long id,
+            HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
             throw new SecurityException("Admin access required");
         }
@@ -50,18 +62,25 @@ public class OrderController {
     }
 
     @GetMapping
-    public java.util.List<OrderResponseDTO> getAllOrders(HttpServletRequest request) {
+    public Page<OrderResponseDTO> getAllOrders
+            (HttpServletRequest request,
+             @RequestParam (defaultValue = "0") int page,
+             @RequestParam (defaultValue = "10") int size) {
         if (!SessionUtil.isAdmin(request)) {
             throw new SecurityException("Admin access required");
         }
-        return orderService.getAllOrders();
+        return orderService.getAllOrders(PageRequest.of(page, size));
     }
 
     @GetMapping("/client/{clientId}")
-    public java.util.List<OrderResponseDTO> getOrdersByClientId(@PathVariable Long clientId, HttpServletRequest request) {
+    public Page<OrderResponseDTO> getOrdersByClientId(
+            @PathVariable Long clientId,
+            HttpServletRequest request,
+            @RequestParam (defaultValue = "0") int page,
+            @RequestParam (defaultValue = "10") int size) {
         if (!SessionUtil.isAdmin(request)) {
             throw new SecurityException("Admin access required");
         }
-        return orderService.getOrdersByClientId(clientId);
+        return orderService.getOrdersByClientId(clientId, PageRequest.of(page, size));
     }
 }
