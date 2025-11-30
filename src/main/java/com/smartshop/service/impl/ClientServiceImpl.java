@@ -9,6 +9,9 @@ import com.smartshop.repository.UserRepository;
 import com.smartshop.service.ClientService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,7 +60,9 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<ClientResponseDTO> getAllClients() {
-        return clientMapper.toListDTO(clientRepository.findAll());
+    public Page<ClientResponseDTO> getAllClients(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Client> clients = clientRepository.findAll(pageable);
+        return clients.map(clientMapper::toDTO);
     }
 }
