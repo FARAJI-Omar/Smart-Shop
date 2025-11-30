@@ -2,8 +2,11 @@ package com.smartshop.controller;
 
 import com.smartshop.dto.request.OrderCreateDTO;
 import com.smartshop.dto.response.OrderResponseDTO;
+import com.smartshop.entity.Client;
+import com.smartshop.repository.ClientRepository;
 import com.smartshop.service.OrderService;
 import com.smartshop.util.SessionUtil;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/order")
@@ -83,4 +84,18 @@ public class OrderController {
         }
         return orderService.getOrdersByClientId(clientId, PageRequest.of(page, size));
     }
+
+    @GetMapping("/myorders")
+    public Page<OrderResponseDTO> getMyOrders(
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (!SessionUtil.isClient(request)) {
+            throw new SecurityException("Client access required");
+        }
+
+        Long userId = SessionUtil.getUserId(request);
+        return orderService.getOrdersByClientId(userId, PageRequest.of(page, size));
+    }
 }
+
