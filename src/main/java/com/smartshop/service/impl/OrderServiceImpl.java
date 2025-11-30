@@ -8,6 +8,7 @@ import com.smartshop.entity.Order;
 import com.smartshop.entity.OrderItem;
 import com.smartshop.entity.Product;
 import com.smartshop.entity.PromoCode;
+import com.smartshop.entity.enums.CustomerTier;
 import com.smartshop.entity.enums.OrderStatus;
 import com.smartshop.entity.enums.PaymentStatus;
 import com.smartshop.mapper.OrderMapper;
@@ -167,7 +168,8 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.CONFIRMED);
         Order saved = orderRepository.save(order);
 
-        // TODO: Update client statistics
+        // Update client loyalty level
+        updateClientLoyaltyLevel(saved.getClient());
 
         return orderMapper.toDTO(saved);
     }
@@ -226,7 +228,7 @@ public class OrderServiceImpl implements OrderService {
             case BASIC -> 0.0;
         };
 
-        return Math.round(subtotal * discountRate * 100.0) / 100.0; // Round to 2 decimals
+        return Math.round(subtotal * discountRate * 100.0) / 100.0;
     }
 
     private PromoCode validateAndApplyPromoCode(String code, double subtotal) {
@@ -238,5 +240,27 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return promoCode;
+    }
+
+    // update client's loyalty level based on their confirmed order history, after each order confirmation
+    private void updateClientLoyaltyLevel(Client client) {
+        Long confirmedOrderCount = orderRepository.countConfirmedOrdersByClientId(client.getId());
+        int totalConfirmedOrders = confirmedOrderCount != null ? confirmedOrderCount.intValue() : 0;
+
+        Double totalSpent = orderRepository.sumTotalByClientIdAndStatusConfirmed(client.getId());
+        double totalAmount = totalSpent != null ? Math.round(totalSpent * 100.0) / 100.0 : 0.0;
+
+        CustomerTier newLevel = calculateLoyaltyLevel(totalConfirmedOrders, totalAmount);
+
+        client.setLoyaltyLevel(newLevel);
+        clientRepository.save(client);
+    }
+
+    // Calculate loyalty level based on confirmed orders and total spent
+    private CustomerTier calculateLoyaltyLevel(int totalConfirmedOrders, double totalSpent) {
+        return (totalConfirmedOrders >= 20 || totalSpent >= 15000.0) ? CustomerTier.PLATINUM :
+               (totalConfirmedOrders >= 10 || totalSpent >= 5000.0) ? CustomerTier.GOLD :
+               (totalConfirmedOrders >= 3 || totalSpent >= 1000.0) ? CustomerTier.SILVER :
+               CustomerTier.BASIC;
     }
 }
