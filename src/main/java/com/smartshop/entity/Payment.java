@@ -21,12 +21,14 @@ public class Payment {
     private int paymentNumber;
     private Double amount;
 
+    @Column(length = 20)
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType;
 
     private LocalDateTime datePayment;
     private LocalDateTime dateReceipt;
 
+    @Column(length = 20)
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
