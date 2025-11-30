@@ -9,6 +9,7 @@ import com.smartshop.entity.OrderItem;
 import com.smartshop.entity.Product;
 import com.smartshop.entity.PromoCode;
 import com.smartshop.entity.enums.OrderStatus;
+import com.smartshop.entity.enums.PaymentStatus;
 import com.smartshop.mapper.OrderMapper;
 import com.smartshop.repository.ClientRepository;
 import com.smartshop.repository.OrderRepository;
@@ -129,10 +130,22 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalStateException("Only PENDING orders can be confirmed!");
         }
 
+        // Check if order is fully paid
         if (order.getRemainingAmount() > 0) {
-            throw new IllegalStateException("Order is not fully paid yet!");
+            throw new IllegalStateException(
+                    String.format("Order must be fully paid before confirmation (remaining: %.2f DH)",
+                    order.getRemainingAmount()));
         }
 
+        // Check if there are any PENDING payments (CHECK or BANK_TRANSFER not yet confirmed)
+        boolean hasPendingPayments = order.getPayments().stream()
+                .anyMatch(p -> p.getStatus() == PaymentStatus.PENDING);
+
+        if (hasPendingPayments) {
+            throw new IllegalStateException("Order has pending payments, cannot confirm");
+        }
+
+        // Check stock availability
         for (OrderItem item : order.getItems()) {
             Product product = item.getProduct();
             if (item.getQuantity() > product.getAvailableStock()) {
@@ -144,6 +157,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
+        // Decrease stock
         for (OrderItem item : order.getItems()) {
             Product product = item.getProduct();
             product.setAvailableStock(product.getAvailableStock() - item.getQuantity());
@@ -152,6 +166,9 @@ public class OrderServiceImpl implements OrderService {
 
         order.setStatus(OrderStatus.CONFIRMED);
         Order saved = orderRepository.save(order);
+
+        // TODO: Update client statistics
+
         return orderMapper.toDTO(saved);
     }
 
