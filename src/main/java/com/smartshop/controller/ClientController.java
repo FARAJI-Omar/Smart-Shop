@@ -12,8 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/clients")
 @RequiredArgsConstructor
@@ -73,4 +71,14 @@ public class ClientController {
         }
         return clientStatisticsService.getClientStatistics(id);
     }
+
+    @GetMapping("/personalinfo")
+    public ClientResponseDTO getPersonalInfo(HttpServletRequest request) {
+        if (!SessionUtil.isClient(request)) {
+            throw new SecurityException("Client access required");
+        }
+        Long userId = SessionUtil.getUserId(request);
+        return clientService.getClientByUserId(userId);
+    }
 }
+

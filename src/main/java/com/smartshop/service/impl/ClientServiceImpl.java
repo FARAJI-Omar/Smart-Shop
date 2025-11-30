@@ -15,8 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
@@ -38,6 +36,13 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public ClientResponseDTO getClientById(Long id) {
         Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+        return clientMapper.toDTO(client);
+    }
+
+    @Override
+    public ClientResponseDTO getClientByUserId(Long userId) {
+        Client client = clientRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Client not found"));
         return clientMapper.toDTO(client);
     }
