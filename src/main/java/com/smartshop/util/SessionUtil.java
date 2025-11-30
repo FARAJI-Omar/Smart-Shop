@@ -23,4 +23,12 @@ public class SessionUtil {
         UserRole role = (UserRole) session.getAttribute("userRole");
         return role == UserRole.CLIENT;
     }
+
+    public static Long getUserId(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return null;
+        }
+        return (Long) session.getAttribute("userId");
+    }
 }
