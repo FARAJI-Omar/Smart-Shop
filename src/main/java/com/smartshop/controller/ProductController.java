@@ -8,7 +8,9 @@ import com.smartshop.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,11 +48,17 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductResponseDTO> getAllProducts(HttpServletRequest request) {
-        if (!SessionUtil.isAdmin(request) || !SessionUtil.isClient(request)) {
+    public ResponseEntity<Page<ProductResponseDTO>> getAllProducts(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpServletRequest request) {
+        if (!SessionUtil.isAdmin(request) && !SessionUtil.isClient(request)) {
             throw new SecurityException("Please login.");
         }
-        return productService.getAllProducts();
+        return ResponseEntity.ok(productService.getAllProducts(name, minPrice, maxPrice, page, size));
     }
 
     @GetMapping("/{id}")
