@@ -20,6 +20,8 @@ import com.smartshop.service.OrderService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -197,16 +199,18 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponseDTO> getAllOrders() {
-        return orderMapper.toListDTO(orderRepository.findAll());
+    public Page<OrderResponseDTO> getAllOrders(Pageable pageable) {
+        Page<Order> orders = orderRepository.findAll(pageable);
+        return orders.map(orderMapper::toDTO);
     }
 
     @Override
-    public List<OrderResponseDTO> getOrdersByClientId(Long clientId) {
+    public Page<OrderResponseDTO> getOrdersByClientId(Long clientId, Pageable pageable) {
         if (!clientRepository.existsById(clientId)) {
             throw new EntityNotFoundException("Client not found");
         }
-        return orderMapper.toListDTO(orderRepository.findClientsOrders(clientId));
+        Page<Order> orders = orderRepository.findClientsOrders(clientId, pageable);
+        return orders.map(orderMapper::toDTO);
     }
 
     /**
