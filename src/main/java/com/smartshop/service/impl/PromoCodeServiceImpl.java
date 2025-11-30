@@ -6,6 +6,8 @@ import com.smartshop.mapper.PromoCodeMapper;
 import com.smartshop.repository.PromoCodeRepository;
 import com.smartshop.service.PromoCodeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,13 +43,12 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     }
 
     @Override
-    public List<PromoCodeResponseDTO> getAllPromoCodes() {
-        return promoCodeMapper.toListDTO(promoCodeRepository.findAll());
+    public Page<PromoCodeResponseDTO> getAllPromoCodes(Pageable pageable) {
+        Page<PromoCode> promoCodes = promoCodeRepository.findAll(pageable);
+        return promoCodes.map(promoCodeMapper::toDTO);
     }
 
-    /**
-     * helper method: generate 4 random digits for promo code
-     */
+    // helper method: generate 4 random digits for promo code
     private String generateFourDigits() {
         int number = random.nextInt(10000); // 0 to 9999
         return String.format("%04d", number); // Pad with zeros if needed

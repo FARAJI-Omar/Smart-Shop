@@ -5,6 +5,8 @@ import com.smartshop.service.PromoCodeService;
 import com.smartshop.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +20,8 @@ public class PromoCodeController {
     private final PromoCodeService promoCodeService;
 
     @PostMapping("/generate")
-    public ResponseEntity<PromoCodeResponseDTO> generatePromoCode(HttpServletRequest request) {
+    public ResponseEntity<PromoCodeResponseDTO> generatePromoCode(
+            HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
             throw new SecurityException("Admins access required");
         }
@@ -29,11 +32,14 @@ public class PromoCodeController {
 
 
     @GetMapping
-    public ResponseEntity<List<PromoCodeResponseDTO>> getAllPromoCodes(HttpServletRequest request) {
+    public ResponseEntity<Page<PromoCodeResponseDTO>> getAllPromoCodes(
+            HttpServletRequest request,
+            @RequestParam (defaultValue = "0") int page,
+            @RequestParam (defaultValue = "10") int size) {
         if (!SessionUtil.isAdmin(request)) {
             throw new SecurityException("Admins access required");
         }
-        List<PromoCodeResponseDTO> promoCodes = promoCodeService.getAllPromoCodes();
+        Page<PromoCodeResponseDTO> promoCodes = promoCodeService.getAllPromoCodes(PageRequest.of(page, size));
         return ResponseEntity.ok(promoCodes);
     }
 }
