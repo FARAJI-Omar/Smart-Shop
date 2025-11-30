@@ -7,6 +7,7 @@ import com.smartshop.entity.Client;
 import com.smartshop.entity.User;
 import com.smartshop.entity.enums.CustomerTier;
 import com.smartshop.entity.enums.UserRole;
+import com.smartshop.exception.InvalidCredentialsException;
 import com.smartshop.mapper.UserMapper;
 import com.smartshop.repository.ClientRepository;
 import com.smartshop.repository.UserRepository;
@@ -48,10 +49,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserResponseDTO login(LoginDTO loginDTO, HttpServletRequest request) {
         User user = userRepository.findByUsername(loginDTO.getUsername())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
 
         if (!PasswordUtil.verifyPassword(loginDTO.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
 
         HttpSession session = request.getSession();

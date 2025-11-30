@@ -11,13 +11,13 @@ import com.smartshop.entity.PromoCode;
 import com.smartshop.entity.enums.CustomerTier;
 import com.smartshop.entity.enums.OrderStatus;
 import com.smartshop.entity.enums.PaymentStatus;
+import com.smartshop.exception.*;
 import com.smartshop.mapper.OrderMapper;
 import com.smartshop.repository.ClientRepository;
 import com.smartshop.repository.OrderRepository;
 import com.smartshop.repository.ProductRepository;
 import com.smartshop.repository.PromoCodeRepository;
 import com.smartshop.service.OrderService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -45,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponseDTO createOrder(OrderCreateDTO dto) {
         Client client = clientRepository.findById(dto.getClientId())
-                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+                .orElseThrow(() -> new ClientNotFoundException("Client not found"));
 
         Order order = new Order();
         order.setClient(client);
@@ -59,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItemCreateDTO itemDto : dto.getItems()) {
             Product product = productRepository.findById(itemDto.getProductId())
-                    .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+                    .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
             if (itemDto.getQuantity() > product.getAvailableStock()) {
                 stockSufficient = false;
@@ -127,15 +127,15 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponseDTO confirmOrder(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found!"));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found!"));
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalStateException("Only PENDING orders can be confirmed!");
+            throw new OrderNotPendingException("Only PENDING orders can be confirmed!");
         }
 
         // Check if order is fully paid
         if (order.getRemainingAmount() > 0) {
-            throw new IllegalStateException(
+            throw new OrderNotFullyPaidException(
                     String.format("Order must be fully paid before confirmation (remaining: %.2f DH)",
                     order.getRemainingAmount()));
         }
@@ -145,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
                 .anyMatch(p -> p.getStatus() == PaymentStatus.PENDING);
 
         if (hasPendingPayments) {
-            throw new IllegalStateException("Order has pending payments, cannot confirm");
+            throw new OrderHasPendingPaymentsException("Order has pending payments, cannot confirm");
         }
 
         // Check stock availability
@@ -180,10 +180,10 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponseDTO cancelOrder(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalStateException("Only PENDING orders can be canceled");
+            throw new OrderNotPendingException("Only PENDING orders can be canceled");
         }
 
         order.setStatus(OrderStatus.CANCELED);
@@ -194,7 +194,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDTO getOrderById(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
         return orderMapper.toDTO(order);
     }
 
@@ -207,7 +207,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<OrderResponseDTO> getOrdersByClientId(Long clientId, Pageable pageable) {
         if (!clientRepository.existsById(clientId)) {
-            throw new EntityNotFoundException("Client not found");
+            throw new ClientNotFoundException("Client not found");
         }
         Page<Order> orders = orderRepository.findClientsOrders(clientId, pageable);
         return orders.map(orderMapper::toDTO);
@@ -237,10 +237,10 @@ public class OrderServiceImpl implements OrderService {
 
     private PromoCode validateAndApplyPromoCode(String code, double subtotal) {
         PromoCode promoCode = promoCodeRepository.findByCode(code)
-                .orElseThrow(() -> new EntityNotFoundException("Promo code not found: " + code));
+                .orElseThrow(() -> new PromoCodeNotFoundException("Promo code not found: " + code));
 
         if (promoCode.getIsUsed()) {
-            throw new IllegalStateException("Promo code already used: " + code);
+            throw new PromoCodeAlreadyUsedException("Promo code already used: " + code);
         }
 
         return promoCode;

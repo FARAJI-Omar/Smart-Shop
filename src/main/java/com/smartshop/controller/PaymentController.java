@@ -3,6 +3,7 @@ package com.smartshop.controller;
 import com.smartshop.dto.request.PaymentCreateDTO;
 import com.smartshop.dto.request.PaymentUpdateStatusDTO;
 import com.smartshop.dto.response.PaymentResponseDTO;
+import com.smartshop.exception.UnauthorizedAccessException;
 import com.smartshop.service.PaymentService;
 import com.smartshop.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +27,7 @@ public class PaymentController {
             @RequestBody PaymentCreateDTO dto,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.addPayment(dto));
     }
@@ -37,7 +38,7 @@ public class PaymentController {
             @Valid @RequestBody PaymentUpdateStatusDTO dto,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return ResponseEntity.ok(paymentService.updatePaymentStatus(id, dto));
     }
@@ -47,7 +48,7 @@ public class PaymentController {
             @PathVariable Long orderId,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return ResponseEntity.ok(paymentService.getPaymentsByOrderId(orderId));
     }
@@ -57,7 +58,7 @@ public class PaymentController {
             @PathVariable Long id,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return ResponseEntity.ok(paymentService.getPaymentById(id));
     }
@@ -66,7 +67,7 @@ public class PaymentController {
     public ResponseEntity<List<PaymentResponseDTO>> getAllPayments(
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return ResponseEntity.ok(paymentService.getAllPayments());
     }

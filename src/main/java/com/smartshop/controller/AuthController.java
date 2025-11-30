@@ -3,6 +3,7 @@ package com.smartshop.controller;
 import com.smartshop.dto.request.LoginDTO;
 import com.smartshop.dto.request.UserCreateDTO;
 import com.smartshop.dto.response.UserResponseDTO;
+import com.smartshop.exception.UnauthorizedAccessException;
 import com.smartshop.service.AuthService;
 import com.smartshop.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +23,7 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDTO createUser(@Valid @RequestBody UserCreateDTO userCreateDTO, HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Access restricted only to admin.");
+            throw new UnauthorizedAccessException("Access restricted only to admin.");
         }
         return authService.createUser(userCreateDTO);
     }

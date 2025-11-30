@@ -3,6 +3,7 @@ package com.smartshop.controller;
 import com.smartshop.dto.request.ClientUpdateDTO;
 import com.smartshop.dto.response.ClientResponseDTO;
 import com.smartshop.dto.response.ClientStatisticsDTO;
+import com.smartshop.exception.UnauthorizedAccessException;
 import com.smartshop.service.ClientService;
 import com.smartshop.service.ClientStatisticsService;
 import com.smartshop.util.SessionUtil;
@@ -25,7 +26,7 @@ public class ClientController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Access restricted only to admin.");
+            throw new UnauthorizedAccessException("Access restricted only to admin.");
         }
         return clientService.getAllClients(page, size);
     }
@@ -35,7 +36,7 @@ public class ClientController {
             @PathVariable Long id,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Access restricted only to admin.");
+            throw new UnauthorizedAccessException("Access restricted only to admin.");
         }
         return clientService.getClientById(id);
     }
@@ -46,7 +47,7 @@ public class ClientController {
             @RequestBody ClientUpdateDTO dto,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Access restricted only to admin.");
+            throw new UnauthorizedAccessException("Access restricted only to admin.");
         }
         return clientService.updateClient(id, dto);
     }
@@ -57,7 +58,7 @@ public class ClientController {
             @PathVariable Long id,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Access restricted only to admin.");
+            throw new UnauthorizedAccessException("Access restricted only to admin.");
         }
         clientService.deleteClient(id);
     }
@@ -67,7 +68,7 @@ public class ClientController {
             @PathVariable Long id,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Access restricted only to admin.");
+            throw new UnauthorizedAccessException("Access restricted only to admin.");
         }
         return clientStatisticsService.getClientStatistics(id);
     }
@@ -75,7 +76,7 @@ public class ClientController {
     @GetMapping("/personalinfo")
     public ClientResponseDTO getPersonalInfo(HttpServletRequest request) {
         if (!SessionUtil.isClient(request)) {
-            throw new SecurityException("Client access required");
+            throw new UnauthorizedAccessException("Client access required");
         }
         Long userId = SessionUtil.getUserId(request);
         return clientService.getClientByUserId(userId);

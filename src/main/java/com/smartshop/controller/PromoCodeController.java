@@ -1,6 +1,7 @@
 package com.smartshop.controller;
 
 import com.smartshop.dto.response.PromoCodeResponseDTO;
+import com.smartshop.exception.UnauthorizedAccessException;
 import com.smartshop.service.PromoCodeService;
 import com.smartshop.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ public class PromoCodeController {
     public ResponseEntity<PromoCodeResponseDTO> generatePromoCode(
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admins access required");
+            throw new UnauthorizedAccessException("Admins access required");
         }
 
         PromoCodeResponseDTO promoCode = promoCodeService.generatePromoCode();
@@ -37,7 +38,7 @@ public class PromoCodeController {
             @RequestParam (defaultValue = "0") int page,
             @RequestParam (defaultValue = "10") int size) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admins access required");
+            throw new UnauthorizedAccessException("Admins access required");
         }
         Page<PromoCodeResponseDTO> promoCodes = promoCodeService.getAllPromoCodes(PageRequest.of(page, size));
         return ResponseEntity.ok(promoCodes);

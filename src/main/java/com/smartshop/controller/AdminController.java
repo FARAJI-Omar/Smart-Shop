@@ -1,5 +1,6 @@
 package com.smartshop.controller;
 
+import com.smartshop.exception.UnauthorizedAccessException;
 import com.smartshop.service.AdminService;
 import com.smartshop.util.SessionUtil;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,8 +18,8 @@ public class AdminController {
     
     @DeleteMapping("/{id}")
     public void deleteAdmin(@PathVariable Long id, HttpServletRequest request) {
-        if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Access restricted only to admin.");
+        if (! SessionUtil.isAdmin(request)) {
+            throw new UnauthorizedAccessException("Access restricted only to admin.");
         }
         adminService.deleteAdmin(id);
     }

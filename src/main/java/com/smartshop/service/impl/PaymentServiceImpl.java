@@ -8,11 +8,11 @@ import com.smartshop.entity.Payment;
 import com.smartshop.entity.enums.OrderStatus;
 import com.smartshop.entity.enums.PaymentStatus;
 import com.smartshop.entity.enums.PaymentType;
+import com.smartshop.exception.*;
 import com.smartshop.mapper.PaymentMapper;
 import com.smartshop.repository.OrderRepository;
 import com.smartshop.repository.PayementRepository;
 import com.smartshop.service.PaymentService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,21 +32,21 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponseDTO addPayment(PaymentCreateDTO dto) {
         // Validate order exists
         Order order = orderRepository.findById(dto.getOrderId())
-                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
 
         // Validate order status is PENDING
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalStateException("Order must be in PENDING status");
+            throw new OrderNotPendingException("Order must be in PENDING status");
         }
 
         // Validate amount > 0
         if (dto.getAmount() <= 0) {
-            throw new IllegalArgumentException("Payment amount must be greater than 0");
+            throw new InvalidPaymentAmountException("Payment amount must be greater than 0");
         }
 
         // Validate amount <= remainingAmount (no overpayment)
         if (dto.getAmount() > order.getRemainingAmount()) {
-            throw new IllegalArgumentException(
+            throw new PaymentExceedsRemainingAmountException(
                     String.format("Payment amount exceeds remaining amount (%.2f DH)",
                     order.getRemainingAmount()));
         }
@@ -88,21 +88,21 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponseDTO updatePaymentStatus(Long paymentId, PaymentUpdateStatusDTO dto) {
         // Validate payment exists
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new EntityNotFoundException("Payment not found"));
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
 
         // Validate payment type is not CASH
         if (payment.getPaymentType() == PaymentType.CASH) {
-            throw new IllegalStateException("Cannot change status of CASH payment");
+            throw new CannotModifyCashPaymentException("Cannot change status of CASH payment");
         }
 
         // Validate current status is PENDING
         if (payment.getStatus() != PaymentStatus.PENDING) {
-            throw new IllegalStateException("Payment already processed");
+            throw new PaymentAlreadyProcessedException("Payment already processed");
         }
 
         // Validate new status is PAID or REJECTED
         if (dto.getStatus() != PaymentStatus.PAID && dto.getStatus() != PaymentStatus.REJECTED) {
-            throw new IllegalArgumentException("Status must be PAID or REJECTED");
+            throw new InvalidPaymentStatusException("Status must be PAID or REJECTED");
         }
 
         Order order = payment.getOrder();
@@ -130,14 +130,14 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponseDTO getPaymentById(Long id) {
         Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Payment not found"));
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
         return paymentMapper.toDTO(payment);
     }
 
     @Override
     public List<PaymentResponseDTO> getPaymentsByOrderId(Long orderId) {
         if (!orderRepository.existsById(orderId)) {
-            throw new EntityNotFoundException("Order not found");
+            throw new OrderNotFoundException("Order not found");
         }
         List<Payment> payments = paymentRepository.findByOrderIdOrderByPaymentNumberAsc(orderId);
         return paymentMapper.toDTO(payments);
