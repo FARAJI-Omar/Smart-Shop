@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PaymentResponseDTO {
     private Long id;
+    private Long orderId;
     private int paymentNumber;
     private Double amount;
     private PaymentType paymentType;
