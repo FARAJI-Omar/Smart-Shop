@@ -8,6 +8,7 @@ import com.smartshop.service.ClientStatisticsService;
 import com.smartshop.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +22,14 @@ public class ClientController {
     private final ClientStatisticsService clientStatisticsService;
 
     @GetMapping
-    public List<ClientResponseDTO> getAllClients(
-            HttpServletRequest request) {
+    public Page<ClientResponseDTO> getAllClients(
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         if (!SessionUtil.isAdmin(request)) {
             throw new SecurityException("Access restricted only to admin.");
         }
-        return clientService.getAllClients();
+        return clientService.getAllClients(page, size);
     }
 
     @GetMapping("/{id}")
