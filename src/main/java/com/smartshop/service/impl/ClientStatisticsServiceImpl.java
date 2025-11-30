@@ -3,10 +3,10 @@ package com.smartshop.service.impl;
 import com.smartshop.dto.response.ClientStatisticsDTO;
 import com.smartshop.entity.Client;
 import com.smartshop.entity.enums.CustomerTier;
+import com.smartshop.exception.ClientNotFoundException;
 import com.smartshop.repository.ClientRepository;
 import com.smartshop.repository.OrderRepository;
 import com.smartshop.service.ClientStatisticsService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class ClientStatisticsServiceImpl implements ClientStatisticsService {
     @Override
     public ClientStatisticsDTO getClientStatistics(Long clientId) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+                .orElseThrow(() -> new ClientNotFoundException("Client not found"));
 
         Long totalOrders = orderRepository.countByClientId(clientId);
 

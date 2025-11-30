@@ -3,11 +3,11 @@ package com.smartshop.service.impl;
 import com.smartshop.dto.request.ClientUpdateDTO;
 import com.smartshop.dto.response.ClientResponseDTO;
 import com.smartshop.entity.Client;
+import com.smartshop.exception.ClientNotFoundException;
 import com.smartshop.mapper.ClientMapper;
 import com.smartshop.repository.ClientRepository;
 import com.smartshop.repository.UserRepository;
 import com.smartshop.service.ClientService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +26,7 @@ public class ClientServiceImpl implements ClientService {
     @Transactional
     public void deleteClient(Long id) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                .orElseThrow(() -> new ClientNotFoundException("Client not found"));
         
         Long userId = client.getUser().getId();
         clientRepository.deleteById(id);
@@ -36,14 +36,14 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public ClientResponseDTO getClientById(Long id) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+                .orElseThrow(() -> new ClientNotFoundException("Client not found"));
         return clientMapper.toDTO(client);
     }
 
     @Override
     public ClientResponseDTO getClientByUserId(Long userId) {
         Client client = clientRepository.findByUserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+                .orElseThrow(() -> new ClientNotFoundException("Client not found"));
         return clientMapper.toDTO(client);
     }
 
@@ -51,7 +51,7 @@ public class ClientServiceImpl implements ClientService {
     @Transactional
     public ClientResponseDTO updateClient(Long id, ClientUpdateDTO dto) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+                .orElseThrow(() -> new ClientNotFoundException("Client not found"));
         
         if (dto.getName() != null) {
             client.setName(dto.getName());

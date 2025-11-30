@@ -2,11 +2,9 @@ package com.smartshop.controller;
 
 import com.smartshop.dto.request.OrderCreateDTO;
 import com.smartshop.dto.response.OrderResponseDTO;
-import com.smartshop.entity.Client;
-import com.smartshop.repository.ClientRepository;
+import com.smartshop.exception.UnauthorizedAccessException;
 import com.smartshop.service.OrderService;
 import com.smartshop.util.SessionUtil;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,7 @@ public class OrderController {
             @Valid @RequestBody OrderCreateDTO dto,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return orderService.createOrder(dto);
     }
@@ -37,7 +35,7 @@ public class OrderController {
             @PathVariable Long id,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return orderService.confirmOrder(id);
     }
@@ -47,7 +45,7 @@ public class OrderController {
             @PathVariable Long id,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return orderService.cancelOrder(id);
     }
@@ -57,7 +55,7 @@ public class OrderController {
             @PathVariable Long id,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return orderService.getOrderById(id);
     }
@@ -68,7 +66,7 @@ public class OrderController {
              @RequestParam (defaultValue = "0") int page,
              @RequestParam (defaultValue = "10") int size) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return orderService.getAllOrders(PageRequest.of(page, size));
     }
@@ -80,7 +78,7 @@ public class OrderController {
             @RequestParam (defaultValue = "0") int page,
             @RequestParam (defaultValue = "10") int size) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return orderService.getOrdersByClientId(clientId, PageRequest.of(page, size));
     }
@@ -91,7 +89,7 @@ public class OrderController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         if (!SessionUtil.isClient(request)) {
-            throw new SecurityException("Client access required");
+            throw new UnauthorizedAccessException("Client access required");
         }
 
         Long userId = SessionUtil.getUserId(request);

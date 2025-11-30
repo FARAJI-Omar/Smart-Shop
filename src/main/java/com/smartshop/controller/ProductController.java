@@ -3,6 +3,7 @@ package com.smartshop.controller;
 import com.smartshop.dto.request.ProductCreateDTO;
 import com.smartshop.dto.request.ProductUpdateDTO;
 import com.smartshop.dto.response.ProductResponseDTO;
+import com.smartshop.exception.UnauthorizedAccessException;
 import com.smartshop.service.ProductService;
 import com.smartshop.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +26,7 @@ public class ProductController {
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponseDTO createProduct(@Valid @RequestBody ProductCreateDTO dto, HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return productService.createProduct(dto);
     }
@@ -33,7 +34,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ProductResponseDTO updateProduct(@PathVariable Long id, @Valid @RequestBody ProductUpdateDTO dto, HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         return productService.updateProduct(id, dto);
     }
@@ -42,7 +43,7 @@ public class ProductController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(@PathVariable Long id, HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request)) {
-            throw new SecurityException("Admin access required");
+            throw new UnauthorizedAccessException("Admin access required");
         }
         productService.deleteProduct(id);
     }
@@ -56,7 +57,7 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request) && !SessionUtil.isClient(request)) {
-            throw new SecurityException("Please login.");
+            throw new UnauthorizedAccessException("Please login.");
         }
         return ResponseEntity.ok(productService.getAllProducts(name, minPrice, maxPrice, page, size));
     }
@@ -64,7 +65,7 @@ public class ProductController {
     @GetMapping("/{id}")
     public ProductResponseDTO getProductById(@PathVariable Long id, HttpServletRequest request) {
         if (!SessionUtil.isAdmin(request) || !SessionUtil.isClient(request)) {
-            throw new SecurityException("Please login.");
+            throw new UnauthorizedAccessException("Please login.");
         }
         return productService.getProductById(id);
     }
