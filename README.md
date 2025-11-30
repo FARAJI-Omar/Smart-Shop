@@ -377,3 +377,5 @@ MicroTech Maroc - SmartShop Project
 This project is developed as part of a Spring Boot learning curriculum.
 
 ---
+well, actually it was a joyful experience!
+
