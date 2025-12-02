@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Service
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
@@ -28,9 +29,8 @@ public class ClientServiceImpl implements ClientService {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException("Client not found"));
         
-        Long userId = client.getUser().getId();
         clientRepository.deleteById(id);
-        userRepository.deleteById(userId);
+        userRepository.deleteById(client.getUser().getId());
     }
 
     @Override
