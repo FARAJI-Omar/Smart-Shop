@@ -24,9 +24,9 @@ public class ClientStatisticsServiceImpl implements ClientStatisticsService {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new ClientNotFoundException("Client not found"));
 
-        Long totalOrders = orderRepository.countByClientId(clientId);
+        int totalOrders = orderRepository.countByClientId(clientId);
 
-        Long totalConfirmedOrders = orderRepository.countConfirmedOrdersByClientId(clientId);
+        int totalConfirmedOrders = orderRepository.countConfirmedOrdersByClientId(clientId);
 
         // Sum amount of confirmed order totals
         Double totalSpent = orderRepository.sumTotalByClientIdAndStatusConfirmed(clientId);
@@ -37,16 +37,13 @@ public class ClientStatisticsServiceImpl implements ClientStatisticsService {
         LocalDateTime lastOrderDate = orderRepository.findLastOrderDateByClientId(clientId);
 
         // Calculate loyalty level based on confirmed orders and total spent
-        CustomerTier loyaltyLevel = calculateLoyaltyLevel(
-            totalConfirmedOrders != null ? totalConfirmedOrders.intValue() : 0,
-            totalSpent
-        );
+        CustomerTier loyaltyLevel = calculateLoyaltyLevel(totalConfirmedOrders, totalSpent);
 
         return ClientStatisticsDTO.builder()
                 .clientId(client.getId())
                 .loyaltyLevel(loyaltyLevel)
-                .totalOrders(totalOrders != null ? totalOrders.intValue() : 0)
-                .totalConfirmedOrders(totalConfirmedOrders != null ? totalConfirmedOrders.intValue() : 0)
+                .totalOrders(totalOrders)
+                .totalConfirmedOrders(totalConfirmedOrders)
                 .totalSpent(totalSpent)
                 .firstOrderDate(firstOrderDate)
                 .lastOrderDate(lastOrderDate)
