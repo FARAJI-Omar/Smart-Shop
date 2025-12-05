@@ -39,6 +39,9 @@ class OrderServiceImplTest {
     private OrderRepository orderRepository;
 
     @Mock
+    private ClientRepository clientRepository;
+
+    @Mock
     private ProductRepository productRepository;
 
     @Mock
@@ -98,6 +101,7 @@ class OrderServiceImplTest {
         // assert
         assertNotNull(result);
         assertEquals(OrderStatus.CONFIRMED, result.getStatus());
+//        System.out.println(result.getStatus());
 
         // Verify order status changed to CONFIRMED
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
