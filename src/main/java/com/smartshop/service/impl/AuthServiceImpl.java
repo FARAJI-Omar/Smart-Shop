@@ -59,6 +59,10 @@ public class AuthServiceImpl implements AuthService {
         session.setAttribute("userId", user.getId());
         session.setAttribute("userName", user.getUsername());
         session.setAttribute("userRole", user.getRole());
+        //set clientId if user is client
+        if (user.getRole() == UserRole.CLIENT) {
+            session.setAttribute("clientId", user.getClient().getId());
+        }
 
         return userMapper.toDTO(user);
     }

@@ -44,6 +44,10 @@ public class PaymentServiceImpl implements PaymentService {
             throw new InvalidPaymentAmountException("Payment amount must be greater than 0");
         }
 
+        if (dto.getPaymentType() == PaymentType.CASH && dto.getAmount() > 20000) {
+            throw new CannotPayMoreThan2KInCashException("CASH payments cannot exceed 20,000 DH");
+        }
+
         // Validate amount <= remainingAmount (no overpayment)
         if (dto.getAmount() > order.getRemainingAmount()) {
             throw new PaymentExceedsRemainingAmountException(

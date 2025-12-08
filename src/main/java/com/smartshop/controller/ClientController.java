@@ -73,6 +73,15 @@ public class ClientController {
         return clientStatisticsService.getClientStatistics(id);
     }
 
+    @GetMapping("/mystatistics")
+    public ClientStatisticsDTO getMyStats(HttpServletRequest request){
+        if (!SessionUtil.isClient(request)) {
+            throw new UnauthorizedAccessException("Client access required.");
+        }
+        Long clientId = SessionUtil.getClientId(request);
+        return clientStatisticsService.getClientStatistics(clientId);
+    }
+
     @GetMapping("/personalinfo")
     public ClientResponseDTO getPersonalInfo(HttpServletRequest request) {
         if (!SessionUtil.isClient(request)) {

@@ -92,8 +92,8 @@ public class OrderController {
             throw new UnauthorizedAccessException("Client access required");
         }
 
-        Long userId = SessionUtil.getUserId(request);
-        return orderService.getOrdersByClientId(userId, PageRequest.of(page, size));
+        Long clientId = SessionUtil.getClientId(request);
+        return orderService.getOrdersByClientId(clientId, PageRequest.of(page, size));
     }
 }
 

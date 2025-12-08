@@ -31,4 +31,12 @@ public class SessionUtil {
         }
         return (Long) session.getAttribute("userId");
     }
+
+    public static Long getClientId(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return null;
+        }
+        return (Long) session.getAttribute("clientId");
+    }
 }
