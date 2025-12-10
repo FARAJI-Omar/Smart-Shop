@@ -44,6 +44,8 @@ public class ClientStatisticsServiceImpl implements ClientStatisticsService {
                 .loyaltyLevel(loyaltyLevel)
                 .totalOrders(totalOrders)
                 .totalConfirmedOrders(totalConfirmedOrders)
+                .totalOrders(totalOrders)
+                .totalConfirmedOrders(totalConfirmedOrders)
                 .totalSpent(totalSpent)
                 .firstOrderDate(firstOrderDate)
                 .lastOrderDate(lastOrderDate)

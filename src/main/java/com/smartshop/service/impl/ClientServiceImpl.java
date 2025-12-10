@@ -8,6 +8,7 @@ import com.smartshop.mapper.ClientMapper;
 import com.smartshop.repository.ClientRepository;
 import com.smartshop.repository.UserRepository;
 import com.smartshop.service.ClientService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +30,7 @@ public class ClientServiceImpl implements ClientService {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException("Client not found"));
         
+        Long userId = client.getUser().getId();
         clientRepository.deleteById(id);
         userRepository.deleteById(client.getUser().getId());
     }
