@@ -159,5 +159,14 @@ public class PaymentServiceImpl implements PaymentService {
     private double roundToTwoDecimals(double value) {
         return Math.round(value * 100.0) / 100.0;
     }
+
+    @Override
+    public Double montantTotal(Long orderId){
+        List<Payment> payments = paymentRepository.findAll();
+
+        return payments.stream().filter(payment -> payment.getId() == orderId)
+        .filter(payment -> payment.getStatus() == PaymentStatus.PAID).
+                mapToDouble(Payment::getAmount).sum();
+    }
 }
 
