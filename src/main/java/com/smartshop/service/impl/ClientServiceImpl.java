@@ -8,12 +8,14 @@ import com.smartshop.mapper.ClientMapper;
 import com.smartshop.repository.ClientRepository;
 import com.smartshop.repository.UserRepository;
 import com.smartshop.service.ClientService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class ClientServiceImpl implements ClientService {
         
         Long userId = client.getUser().getId();
         clientRepository.deleteById(id);
-        userRepository.deleteById(userId);
+        userRepository.deleteById(client.getUser().getId());
     }
 
     @Override

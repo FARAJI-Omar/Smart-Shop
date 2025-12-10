@@ -96,7 +96,8 @@ public class GlobalExceptionHandler {
             InvalidPaymentStatusException.class,
             PromoCodeAlreadyUsedException.class,
             CannotDeleteAdminException.class,
-            UserDeletionException.class
+            UserDeletionException.class,
+            CannotPayMoreThan2KInCashException.class
     })
     public ResponseEntity<Map<String, Object>> handleBusinessRuleViolationException(
             RuntimeException ex,

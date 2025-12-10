@@ -11,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Random;
 
 @Service
@@ -30,7 +29,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
 
         // generate unique code (check if it doesnt already exist in DB)
         do {
-            code = PROMO_PREFIX + generateFourDigits();
+            code = PROMO_PREFIX + generateCode();
         } while (promoCodeRepository.existsByCode(code));
 
         PromoCode promoCode = new PromoCode();
@@ -49,7 +48,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     }
 
     // helper method: generate 4 random digits for promo code
-    private String generateFourDigits() {
+    private String generateCode() {
         int number = random.nextInt(10000); // 0 to 9999
         return String.format("%04d", number); // Pad with zeros if needed
     }

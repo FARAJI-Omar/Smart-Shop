@@ -44,6 +44,10 @@ public class PaymentServiceImpl implements PaymentService {
             throw new InvalidPaymentAmountException("Payment amount must be greater than 0");
         }
 
+        if (dto.getPaymentType() == PaymentType.CASH && dto.getAmount() > 20000) {
+            throw new CannotPayMoreThan2KInCashException("CASH payments cannot exceed 20,000 DH");
+        }
+
         // Validate amount <= remainingAmount (no overpayment)
         if (dto.getAmount() > order.getRemainingAmount()) {
             throw new PaymentExceedsRemainingAmountException(
@@ -154,6 +158,15 @@ public class PaymentServiceImpl implements PaymentService {
      */
     private double roundToTwoDecimals(double value) {
         return Math.round(value * 100.0) / 100.0;
+    }
+
+    @Override
+    public Double montantTotal(Long orderId){
+        List<Payment> payments = paymentRepository.findAll();
+
+        return payments.stream().filter(payment -> payment.getId() == orderId)
+        .filter(payment -> payment.getStatus() == PaymentStatus.PAID).
+                mapToDouble(Payment::getAmount).sum();
     }
 }
 

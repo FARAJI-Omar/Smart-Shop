@@ -12,5 +12,8 @@ public interface PaymentService {
     PaymentResponseDTO getPaymentById(Long id);
     List<PaymentResponseDTO> getPaymentsByOrderId(Long orderId);
     List<PaymentResponseDTO> getAllPayments();
+
+    // total amount of payments PAID of an order
+    Double montantTotal(Long orderId);
 }
 

@@ -50,7 +50,6 @@ public class OrderServiceImpl implements OrderService {
         Order order = new Order();
         order.setClient(client);
         order.setDate(LocalDateTime.now());
-        order.setDiscount(0.0);
 
         List<OrderItem> orderItems = new ArrayList<>();
         double subtotal = 0.0;
@@ -87,10 +86,8 @@ public class OrderServiceImpl implements OrderService {
         double promoDiscount = 0.0;
         PromoCode promoCode = null;
         if (dto.getPromoCode() != null && !dto.getPromoCode().trim().isEmpty()) {
-            promoCode = validateAndApplyPromoCode(dto.getPromoCode(), subtotal);
-            if (promoCode != null) {
-                promoDiscount = Math.round(subtotal * 0.05 * 100.0) / 100.0;
-            }
+            promoCode = validatePromoCode(dto.getPromoCode());
+            promoDiscount = Math.round(subtotal * 0.05 * 100.0) / 100.0;
         }
 
         // Total discount (loyalty + promo)
@@ -110,7 +107,6 @@ public class OrderServiceImpl implements OrderService {
         // Mark promo code as used after successful order creation
         if (promoCode != null && stockSufficient) {
             promoCode.setIsUsed(true);
-            promoCode.setOrder(saved);
             promoCodeRepository.save(promoCode);
         }
 
@@ -135,9 +131,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Check if order is fully paid
         if (order.getRemainingAmount() > 0) {
-            throw new OrderNotFullyPaidException(
-                    String.format("Order must be fully paid before confirmation (remaining: %.2f DH)",
-                    order.getRemainingAmount()));
+            throw new OrderNotFullyPaidException("Order must be fully paid before confirmation (remaining: "+ order.getRemainingAmount() +" DH)");
         }
 
         // Check if there are any PENDING payments (CHECK or BANK_TRANSFER not yet confirmed)
@@ -235,7 +229,7 @@ public class OrderServiceImpl implements OrderService {
         return Math.round(subtotal * discountRate * 100.0) / 100.0;
     }
 
-    private PromoCode validateAndApplyPromoCode(String code, double subtotal) {
+    private PromoCode validatePromoCode(String code) {
         PromoCode promoCode = promoCodeRepository.findByCode(code)
                 .orElseThrow(() -> new PromoCodeNotFoundException("Promo code not found: " + code));
 
@@ -248,11 +242,9 @@ public class OrderServiceImpl implements OrderService {
 
     // update client's loyalty level based on their confirmed order history, after each order confirmation
     private void updateClientLoyaltyLevel(Client client) {
-        Long confirmedOrderCount = orderRepository.countConfirmedOrdersByClientId(client.getId());
-        int totalConfirmedOrders = confirmedOrderCount != null ? confirmedOrderCount.intValue() : 0;
+        int totalConfirmedOrders = orderRepository.countConfirmedOrdersByClientId(client.getId());
 
-        Double totalSpent = orderRepository.sumTotalByClientIdAndStatusConfirmed(client.getId());
-        double totalAmount = totalSpent != null ? Math.round(totalSpent * 100.0) / 100.0 : 0.0;
+        double totalAmount = Math.round(orderRepository.sumTotalByClientIdAndStatusConfirmed(client.getId()) * 100.0)/100.0;
 
         CustomerTier newLevel = calculateLoyaltyLevel(totalConfirmedOrders, totalAmount);
 

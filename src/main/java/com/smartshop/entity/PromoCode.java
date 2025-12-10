@@ -20,6 +20,6 @@ public class PromoCode {
     private Double percentage;
     private Boolean isUsed;
 
-    @OneToOne(mappedBy = "promoCode")
-    private Order order;
+    /* @OneToOne(mappedBy = "promoCode")
+    private Order order; */
 }
